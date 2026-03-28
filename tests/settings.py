@@ -40,6 +40,8 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 USE_TZ = True
 TIME_ZONE = "UTC"
 
+ALLOWED_HOSTS = ["*"]
+
 # Boundary settings
 BOUNDARY_TENANT_MODEL = "boundary_testapp.Tenant"
 BOUNDARY_STRICT_MODE = True
