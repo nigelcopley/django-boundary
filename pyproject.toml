@@ -8,23 +8,22 @@ version = "0.1.0"
 description = "Scalable row-level multi-tenancy for Django with PostgreSQL RLS"
 readme = "README.md"
 license = {text = "MIT"}
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 authors = [{name = "ICV", email = "dev@icv.dev"}]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Framework :: Django",
-    "Framework :: Django :: 4.2",
     "Framework :: Django :: 5.0",
     "Framework :: Django :: 5.1",
+    "Framework :: Django :: 6.0",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Topic :: Software Development :: Libraries :: Application Frameworks",
 ]
 dependencies = [
-    "Django>=4.2",
+    "Django>=5.0",
 ]
 
 [project.optional-dependencies]
