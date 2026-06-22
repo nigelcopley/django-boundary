@@ -14,6 +14,7 @@ from contextvars import ContextVar
 
 from boundary.conf import boundary_settings
 from boundary.context import TenantContext
+from boundary.exceptions import RegionNotConfiguredError
 from boundary.models import is_tenant_model
 
 logger = logging.getLogger("boundary.routing")
@@ -79,6 +80,39 @@ class RegionalRouter:
             extra={"tenant_id": str(tenant.pk), "region": region},
         )
         return region
+
+
+def require_region(tenant=None):
+    """Return the database alias for ``tenant`` or raise if it is not routable.
+
+    Unlike :class:`RegionalRouter`, which silently falls back to ``"default"``
+    (Django routers must always return an alias), this helper fails loudly when
+    a tenant's region is missing or not present in ``BOUNDARY_REGIONS``. Use it
+    where silent fallback to ``"default"`` would be a correctness or data
+    residency problem, for example when provisioning a tenant or before a
+    cross-region batch job.
+
+    :param tenant: the tenant to check. Defaults to the active tenant in context.
+    :raises RegionNotConfiguredError: if regions are unconfigured, no tenant is
+        active, or the tenant's region is not in ``BOUNDARY_REGIONS``.
+    :returns: the region alias the tenant routes to.
+    """
+    regions = boundary_settings.REGIONS
+    if not regions:
+        raise RegionNotConfiguredError("BOUNDARY_REGIONS is not configured; no regional routing is active.")
+
+    if tenant is None:
+        tenant = TenantContext.get()
+    if tenant is None:
+        raise RegionNotConfiguredError("No tenant is active in context, so its region cannot be resolved.")
+
+    region_field = boundary_settings.REGION_FIELD
+    region = getattr(tenant, region_field, None)
+    if not region or region not in regions:
+        raise RegionNotConfiguredError(
+            f"Tenant {tenant.pk!r} has region {region!r}, which is not in BOUNDARY_REGIONS ({sorted(regions)})."
+        )
+    return region
 
 
 @contextmanager

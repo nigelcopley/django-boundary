@@ -78,9 +78,10 @@ class TenantManager(models.Manager):
 
         if boundary_settings.STRICT_MODE:
             strict_mode_violation.send(sender=self.model, model=self.model, queryset=qs)
+            label = boundary_settings.TENANT_LABEL
             raise TenantNotSetError(
                 f"Query on {self.model.__name__} attempted with no active "
-                f"tenant. Set a tenant via TenantContext.using() or "
+                f"{label}. Set a {label} via TenantContext.using() or "
                 f"TenantMiddleware."
             )
 
@@ -101,12 +102,13 @@ class TenantManager(models.Manager):
         tenant = TenantContext.require()
         fk_field = getattr(self.model, "_boundary_fk_field", "tenant")
         fk_id_field = f"{fk_field}_id"
+        label = boundary_settings.TENANT_LABEL
         for obj in objs:
             if getattr(obj, fk_id_field) != tenant.pk:
                 raise ValueError(
                     f"{obj.__class__.__name__} (pk={obj.pk}) belongs to "
-                    f"tenant {getattr(obj, fk_id_field)}, not the active tenant "
-                    f"{tenant.pk}. Cross-tenant bulk_update is not allowed."
+                    f"{label} {getattr(obj, fk_id_field)}, not the active "
+                    f"{label} {tenant.pk}. Cross-{label} bulk_update is not allowed."
                 )
         return super().bulk_update(objs, fields, **kwargs)
 
@@ -195,7 +197,7 @@ def make_tenant_mixin(
         db_index=db_index,
         null=null,
         related_name=related_name,
-        verbose_name=_(fk_field),
+        verbose_name=_(boundary_settings.TENANT_LABEL),
     )
     fk.contribute_to_class(_TenantMixin, fk_field)
 

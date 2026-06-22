@@ -76,6 +76,27 @@ class TestInactiveTenant:
         response = mw(request)
         assert response.status_code == 403
 
+    def test_inactive_hook_receives_exception(self, rf, inactive_tenant, settings):
+        """Issue #6: _handle_inactive_tenant gets a TenantInactiveError."""
+        from boundary.exceptions import TenantInactiveError
+
+        settings.BOUNDARY_RESOLVERS = ["boundary.resolvers.HeaderResolver"]
+        seen = []
+
+        class RecordingMiddleware(TenantMiddleware):
+            def _handle_inactive_tenant(self, request, tenant, exc):
+                seen.append((tenant, exc))
+                return super()._handle_inactive_tenant(request, tenant, exc)
+
+        request = rf.get("/", HTTP_X_TENANT_ID=str(inactive_tenant.pk))
+        response = RecordingMiddleware(_get_response)(request)
+
+        assert response.status_code == 403
+        assert len(seen) == 1
+        tenant, exc = seen[0]
+        assert tenant == inactive_tenant
+        assert isinstance(exc, TenantInactiveError)
+
 
 @pytest.mark.django_db
 class TestResolverException:
@@ -92,6 +113,46 @@ class TestResolverException:
         # Broken resolver is skipped; header resolver succeeds
         assert response.status_code == 200
         assert response.content.decode() == str(tenant_a.pk)
+
+    def test_resolver_error_passed_to_hook(self, rf, tenant_a, settings):
+        """Issue #6: _on_resolver_error receives a TenantResolutionError."""
+        from boundary.exceptions import TenantResolutionError
+
+        settings.BOUNDARY_RESOLVERS = [
+            "test_middleware.BrokenResolver",
+            "boundary.resolvers.HeaderResolver",
+        ]
+        seen = []
+
+        class RecordingMiddleware(TenantMiddleware):
+            def _on_resolver_error(self, request, resolver_path, error):
+                seen.append((resolver_path, error))
+
+        request = rf.get("/", HTTP_X_TENANT_ID=str(tenant_a.pk))
+        RecordingMiddleware(_get_response)(request)
+
+        assert len(seen) == 1
+        path, error = seen[0]
+        assert path == "test_middleware.BrokenResolver"
+        assert isinstance(error, TenantResolutionError)
+        assert isinstance(error.__cause__, RuntimeError)
+
+    def test_on_resolver_error_can_abort(self, rf, tenant_a, settings):
+        """A subclass can re-raise to abort instead of falling through."""
+        from boundary.exceptions import TenantResolutionError
+
+        settings.BOUNDARY_RESOLVERS = [
+            "test_middleware.BrokenResolver",
+            "boundary.resolvers.HeaderResolver",
+        ]
+
+        class StrictMiddleware(TenantMiddleware):
+            def _on_resolver_error(self, request, resolver_path, error):
+                raise error
+
+        request = rf.get("/", HTTP_X_TENANT_ID=str(tenant_a.pk))
+        with pytest.raises(TenantResolutionError):
+            StrictMiddleware(_get_response)(request)
 
 
 @pytest.mark.django_db

@@ -1,0 +1,55 @@
+site_name: django-boundary
+site_description: Scalable row-level multi-tenancy for Django with PostgreSQL RLS
+repo_url: https://github.com/icv-oss/django-boundary
+docs_dir: docs
+
+theme:
+  name: material
+  features:
+    - navigation.sections
+    - navigation.top
+    - content.code.copy
+    - search.suggest
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - tables
+  - toc:
+      permalink: true
+
+nav:
+  - Home: index.md
+  - Tutorial:
+      - Build your first multi-tenant app: tutorial/first-multi-tenant-app.md
+  - How-to guides:
+      - Set up a tenant model: how-to/set-up-a-tenant-model.md
+      - Add boundary to an existing app: how-to/add-boundary-to-an-existing-app.md
+      - Choose and order resolvers: how-to/choose-and-order-resolvers.md
+      - Customise the terminology: how-to/customise-terminology.md
+      - Write tenant-safe tests: how-to/write-tenant-safe-tests.md
+      - Add RLS policies with migrations: how-to/add-rls-policies-with-migrations.md
+      - Run Celery tasks with tenant context: how-to/run-celery-tasks-with-tenant-context.md
+      - Deploy across multiple regions: how-to/deploy-multi-region.md
+      - Cross-tenant admin operations: how-to/cross-tenant-admin-operations.md
+      - Provision and deprovision tenants: how-to/provision-and-deprovision-tenants.md
+  - Explanation:
+      - Isolation layers and the threat model: explanation/isolation-layers.md
+      - How tenant resolution works: explanation/how-resolution-works.md
+  - Reference:
+      - Settings: reference/settings.md
+  - Troubleshooting: troubleshooting.md

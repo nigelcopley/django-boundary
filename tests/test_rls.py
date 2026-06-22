@@ -78,6 +78,50 @@ class TestDropTenantPolicyUnit:
         assert "Booking" in DropTenantPolicy("Booking").describe()
 
 
+@pytest.mark.django_db
+class TestCustomSessionVariables:
+    """Issue #5: RLS SQL must honour BOUNDARY_DB_SESSION_VAR / ADMIN_FLAG_VAR.
+
+    The generated policies and helper function must reference the configured
+    session-variable names, not the hardcoded defaults, otherwise customising
+    the settings silently breaks isolation.
+    """
+
+    def _function_body(self):
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT prosrc FROM pg_proc WHERE proname = 'boundary_current_tenant_id'")
+            row = cursor.fetchone()
+            return row[0] if row else ""
+
+    def _admin_policy_qual(self):
+        with connection.cursor() as cursor:
+            cursor.execute(
+                "SELECT pg_get_expr(polqual, polrelid) FROM pg_policy "
+                "WHERE polname = 'boundary_admin_bypass' "
+                "AND polrelid = 'boundary_testapp_booking'::regclass"
+            )
+            row = cursor.fetchone()
+            return row[0] if row else ""
+
+    def test_custom_session_var_in_function(self, settings):
+        settings.BOUNDARY_DB_SESSION_VAR = "myapp.tenant"
+        settings.BOUNDARY_ADMIN_FLAG_VAR = "myapp.is_admin"
+        _apply_rls()
+        try:
+            body = self._function_body()
+            assert "myapp.tenant" in body
+            assert "app.current_tenant_id" not in body
+
+            admin_qual = self._admin_policy_qual()
+            assert "myapp.is_admin" in admin_qual
+            assert "app.boundary_admin" not in admin_qual
+        finally:
+            _remove_rls()
+            state = _get_fake_state()
+            with connection.schema_editor() as editor:
+                DropTenantPolicy("Booking").database_forwards("boundary_testapp", editor, state, state)
+
+
 # ── Database integration tests ────────────────────────────────
 
 

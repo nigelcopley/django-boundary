@@ -2,10 +2,58 @@
 
 All notable changes to django-boundary are documented here.
 
-## [0.2.0] - 2026-04-21
+## [0.3.0] - 2026-06-22
+
+### Fixed
+
+- **RLS policies now honour `BOUNDARY_DB_SESSION_VAR` and
+  `BOUNDARY_ADMIN_FLAG_VAR`.** `CreateTenantPolicy` previously hardcoded the
+  literals `app.current_tenant_id` and `app.boundary_admin` in the generated
+  SQL, so customising either setting silently broke isolation (the database
+  policy tested a variable the runtime never set). The migration now reads the
+  configured names. Because the names are baked into the migration SQL at apply
+  time, changing the setting after the policies exist requires re-running the
+  policy migration.
 
 ### Added
 
+- **`boundary.routing.require_region(tenant=None)`** — returns the database
+  alias a tenant routes to, or raises `RegionNotConfiguredError` when regions
+  are unconfigured, no tenant is active, or the tenant's region is not in
+  `BOUNDARY_REGIONS`. Gives `RegionNotConfiguredError` a real raise site for
+  callers that need data residency enforced (the router itself cannot raise, as
+  Django routers must always return an alias).
+- **`TenantMiddleware._handle_inactive_tenant(request, tenant, exc)`** —
+  overridable hook called with a `TenantInactiveError` when a resolved tenant is
+  inactive. The default returns the existing HTTP 403; subclasses can return a
+  custom response or re-raise.
+- **`TenantMiddleware._on_resolver_error(request, resolver_path, error)`** —
+  overridable hook called with a `TenantResolutionError` (wrapping the original
+  exception) when a resolver raises. The default skips to the next resolver
+  (unchanged behaviour); subclasses can re-raise to abort resolution.
+
+## [0.2.0] - 2026-05-03
+
+### Changed
+
+- **Minimum Python is now 3.12** (was 3.11). Adds classifiers for 3.13 and 3.14.
+- **Minimum Django is now 5.0** (already enforced by `Django>=5.0` dependency;
+  classifiers updated to add 5.2 and drop pre-5.0 references).
+
+### Added
+
+- **Configurable terminology** — `BOUNDARY_TENANT_LABEL` setting controls the
+  human-readable term used in error messages, `verbose_name` on FK fields
+  created by `make_tenant_mixin()`, and the HTTP response bodies in
+  `TenantMiddleware` ("Merchant not found", "Merchant is inactive"). Defaults
+  to `BOUNDARY_TENANT_FK_FIELD`, so setting `BOUNDARY_TENANT_FK_FIELD =
+  "merchant"` automatically themes errors as "merchant" without a second
+  setting.
+- **Configurable request attribute** — `BOUNDARY_REQUEST_ATTR` setting
+  controls a second attribute name on the request object. `request.tenant`
+  is always set for backwards compatibility; when this setting differs from
+  `"tenant"`, the same value is also assigned to `request.<custom>` so views
+  can read `request.merchant`.
 - **Configurable tenant FK field name** — `BOUNDARY_TENANT_FK_FIELD` setting
   (default `"tenant"`) controls the FK field name on `TenantMixin`. Consumers
   who want domain-native names like `merchant` can set this globally.

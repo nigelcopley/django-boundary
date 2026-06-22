@@ -93,6 +93,26 @@ class _Settings:
         return _setting("BOUNDARY_TENANT_FK_FIELD", "tenant")
 
     @property
+    def TENANT_LABEL(self):  # noqa: N802
+        """Human-readable term used in error messages and verbose_name.
+
+        Defaults to ``BOUNDARY_TENANT_FK_FIELD`` so a project that sets
+        ``BOUNDARY_TENANT_FK_FIELD = "merchant"`` automatically gets
+        ``"merchant"`` in error messages without a second setting.
+        """
+        return _setting("BOUNDARY_TENANT_LABEL", self.TENANT_FK_FIELD)
+
+    @property
+    def REQUEST_ATTR(self):  # noqa: N802
+        """Attribute name used on the request object.
+
+        ``request.tenant`` is always set for backwards compatibility. When
+        this differs from ``"tenant"``, the same value is also assigned to
+        ``request.<REQUEST_ATTR>`` so views can read ``request.merchant``.
+        """
+        return _setting("BOUNDARY_REQUEST_ATTR", self.TENANT_FK_FIELD)
+
+    @property
     def POST_PROVISION_HOOK(self):  # noqa: N802
         return _setting("BOUNDARY_POST_PROVISION_HOOK")
 

@@ -2,7 +2,8 @@
 
 import pytest
 
-from boundary.routing import RegionalRouter, all_regions, specific_region
+from boundary.exceptions import RegionNotConfiguredError
+from boundary.routing import RegionalRouter, all_regions, require_region, specific_region
 from boundary.testing import set_tenant
 
 
@@ -123,3 +124,38 @@ class TestSpecificRegion:
 
         with specific_region("nonexistent"):
             assert router.db_for_read(Booking) == "default"
+
+
+@pytest.mark.django_db
+class TestRequireRegion:
+    """Issue #6: require_region() raises instead of silently using default."""
+
+    def test_returns_region_for_routable_tenant(self, tenant_a, settings):
+        settings.BOUNDARY_REGIONS = {"eu-west": {}, "us": {}}
+        tenant_a.region = "eu-west"
+        tenant_a.save()
+        with set_tenant(tenant_a):
+            assert require_region() == "eu-west"
+
+    def test_accepts_explicit_tenant(self, tenant_a, settings):
+        settings.BOUNDARY_REGIONS = {"eu-west": {}}
+        tenant_a.region = "eu-west"
+        tenant_a.save()
+        assert require_region(tenant_a) == "eu-west"
+
+    def test_raises_when_regions_unconfigured(self, settings):
+        settings.BOUNDARY_REGIONS = None
+        with pytest.raises(RegionNotConfiguredError):
+            require_region()
+
+    def test_raises_when_no_tenant_active(self, settings):
+        settings.BOUNDARY_REGIONS = {"eu-west": {}}
+        with pytest.raises(RegionNotConfiguredError):
+            require_region()
+
+    def test_raises_for_unknown_region(self, tenant_a, settings):
+        settings.BOUNDARY_REGIONS = {"eu-west": {}}
+        tenant_a.region = "ap-southeast"
+        tenant_a.save()
+        with pytest.raises(RegionNotConfiguredError):
+            require_region(tenant_a)

@@ -378,6 +378,33 @@ Alternatively, set `BOUNDARY_TENANT_FK_FIELD` in your settings to change
 the default field name globally. `TenantMixin` itself always uses `"tenant"`,
 but the factory reads the setting when no explicit `fk_field` is passed.
 
+### Custom Terminology
+
+Boundary error messages, `verbose_name` on FK fields, and middleware HTTP
+responses all use a configurable label. By default the label tracks
+`BOUNDARY_TENANT_FK_FIELD`, so a single setting changes everything:
+
+```python
+# settings.py
+BOUNDARY_TENANT_FK_FIELD = "merchant"
+# → "No merchant is active in context."
+# → 404 body: "Merchant not found."
+# → FK verbose_name: "merchant"
+```
+
+To override independently, set `BOUNDARY_TENANT_LABEL` (used in user-facing
+strings) and/or `BOUNDARY_REQUEST_ATTR` (the alias attached to the request
+alongside `request.tenant`):
+
+```python
+BOUNDARY_TENANT_FK_FIELD = "merchant"   # FK column name
+BOUNDARY_TENANT_LABEL = "shop"          # error/UI copy says "shop"
+BOUNDARY_REQUEST_ATTR = "merchant"      # views read request.merchant
+```
+
+`request.tenant` is always set for backwards compatibility; the alias is
+added in addition, never as a replacement.
+
 ### Model Introspection
 
 ```python
@@ -598,6 +625,8 @@ python manage.py boundary_run_all send_reminders --parallel 4 --region eu-west -
 |---------|---------|-------------|
 | `BOUNDARY_TENANT_MODEL` | **Required** | Dotted path to tenant model, e.g. `"tenants.Organisation"` |
 | `BOUNDARY_TENANT_FK_FIELD` | `"tenant"` | Default FK field name used by `make_tenant_mixin()` when no explicit name is passed |
+| `BOUNDARY_TENANT_LABEL` | `BOUNDARY_TENANT_FK_FIELD` | Human-readable term used in error messages, FK `verbose_name`, and middleware HTTP response bodies |
+| `BOUNDARY_REQUEST_ATTR` | `BOUNDARY_TENANT_FK_FIELD` | Extra attribute set on the request object alongside `request.tenant` (e.g. `request.merchant`). When equal to `"tenant"`, no second attribute is added |
 | `BOUNDARY_STRICT_MODE` | `True` | Raise `TenantNotSetError` on unscoped queries |
 | `BOUNDARY_REQUIRED` | `True` | Return 404 if no resolver matches |
 | `BOUNDARY_RESOLVERS` | `["...SubdomainResolver"]` | Ordered resolver class paths |

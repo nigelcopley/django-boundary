@@ -6,6 +6,20 @@ subclasses, or can be added manually by developers.
 
 from django.db import migrations
 
+from boundary.conf import boundary_settings
+
+
+def _sql_string_literal(value: str) -> str:
+    """Quote a value as a PostgreSQL string literal.
+
+    The session-variable names come from project settings
+    (``BOUNDARY_DB_SESSION_VAR`` / ``BOUNDARY_ADMIN_FLAG_VAR``) and are
+    interpolated into ``current_setting('...')`` calls, so they are escaped
+    to avoid breaking the generated SQL.
+    """
+    escaped = value.replace("'", "''")
+    return f"'{escaped}'"
+
 
 class EnableRLS(migrations.operations.base.Operation):
     """Enable Row Level Security on a table.
@@ -74,6 +88,13 @@ class CreateTenantPolicy(migrations.operations.base.Operation):
         # Detect tenant column's database type for the LEAKPROOF function
         pg_type = self._detect_tenant_column_type(model)
 
+        # Honour the configurable session-variable names so the database
+        # policies test the same variables the ORM/context layer sets. These
+        # default to "app.current_tenant_id" / "app.boundary_admin" but break
+        # isolation silently if hardcoded when a project customises them.
+        session_var = _sql_string_literal(boundary_settings.DB_SESSION_VAR)
+        admin_flag = _sql_string_literal(boundary_settings.ADMIN_FLAG_VAR)
+
         # Create the LEAKPROOF helper function (idempotent via CREATE OR REPLACE)
         # Uses the detected column type so it works with both UUID and integer PKs.
         schema_editor.execute(f"""
@@ -81,7 +102,7 @@ class CreateTenantPolicy(migrations.operations.base.Operation):
             RETURNS {pg_type} AS $$
             BEGIN
                 RETURN NULLIF(
-                    current_setting('app.current_tenant_id', true), ''
+                    current_setting({session_var}, true), ''
                 )::{pg_type};
             EXCEPTION WHEN OTHERS THEN
                 RETURN NULL;
@@ -98,8 +119,7 @@ class CreateTenantPolicy(migrations.operations.base.Operation):
 
         # Admin bypass policy
         schema_editor.execute(
-            f'CREATE POLICY boundary_admin_bypass ON "{table}" '
-            f"USING (current_setting('app.boundary_admin', TRUE) = 'true')"
+            f"CREATE POLICY boundary_admin_bypass ON \"{table}\" USING (current_setting({admin_flag}, TRUE) = 'true')"
         )
 
     def _detect_tenant_column_type(self, model):
