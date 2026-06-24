@@ -2,6 +2,18 @@
 
 All notable changes to django-boundary are documented here.
 
+## [0.3.1] — 2026-06-24
+
+### Fixed
+
+- **`boundary_deprovision` no longer skips `make_tenant_mixin()` models.**
+  Model discovery used `issubclass(model, TenantMixin)`, which misses models
+  built with the `make_tenant_mixin()` factory (they are not `TenantMixin`
+  subclasses). Their rows were neither exported nor deleted, while the command
+  reported success — a tenant-data-isolation and right-to-erasure hazard.
+  Discovery now uses `is_tenant_model()` and the per-model FK name via
+  `get_tenant_fk_field()`, matching the rest of the package.
+
 ## [0.3.0] - 2026-06-22
 
 ### Fixed
