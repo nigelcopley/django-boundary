@@ -1,6 +1,6 @@
 site_name: django-boundary
 site_description: Scalable row-level multi-tenancy for Django with PostgreSQL RLS
-repo_url: https://github.com/icv-oss/django-boundary
+repo_url: https://github.com/nigelcopley/django-boundary
 docs_dir: docs
 
 theme:

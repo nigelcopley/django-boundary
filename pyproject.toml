@@ -38,11 +38,19 @@ dev = [
     "django-stubs>=5.0",
 ]
 
+[project.urls]
+"Homepage" = "https://github.com/nigelcopley/django-boundary"
+"Source Code" = "https://github.com/nigelcopley/django-boundary"
+"Changelog" = "https://github.com/nigelcopley/django-boundary/blob/main/CHANGELOG.md"
+"Issue Tracker" = "https://github.com/nigelcopley/django-boundary/issues"
+"Documentation" = "https://github.com/nigelcopley/django-boundary/tree/main/docs"
+
 [tool.setuptools.packages.find]
 where = ["src"]
 
-# pytest config is centralised in the root pyproject.toml.
-# Run tests from the project root: pytest packages/django-boundary/tests/
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "settings"
+pythonpath = ["src", "tests"]
 
 [tool.coverage.run]
 source = ["src"]
@@ -56,3 +64,32 @@ exclude_lines = [
     "if TYPE_CHECKING:",
     "if __name__ ==",
 ]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 120
+src = ["src"]
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "UP",  # pyupgrade
+    "N",   # pep8-naming
+    "SIM", # flake8-simplify
+    "DJ",  # flake8-django
+]
+ignore = [
+    "E501",   # line length handled by the formatter
+    "N806",   # User = get_user_model() is standard Django convention
+    "SIM105", # contextlib.suppress less readable than try/except/pass for DoesNotExist
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["boundary"]
+
+[tool.ruff.format]
+quote-style = "double"

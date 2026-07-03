@@ -247,7 +247,7 @@ class directly without routing through URLconf and middleware.
 Run the suite and confirm both the isolation and strict-mode tests pass:
 
 ```bash
-pytest packages/django-boundary/tests/test_models.py packages/django-boundary/tests/test_testing.py -v
+pytest tests/test_models.py tests/test_testing.py -v
 ```
 
 A correctly isolated model shows the filtered manager counts differ per tenant

@@ -1,6 +1,6 @@
 # django-boundary
 
-[![CI](https://github.com/nigelcopley/icv-oss/actions/workflows/ci.yml/badge.svg)](https://github.com/nigelcopley/icv-oss/actions/workflows/ci.yml)
+[![CI](https://github.com/nigelcopley/django-boundary/actions/workflows/ci.yml/badge.svg)](https://github.com/nigelcopley/django-boundary/actions/workflows/ci.yml)
 [![PyPI version](https://img.shields.io/pypi/v/django-boundary.svg)](https://pypi.org/project/django-boundary/)
 [![Python versions](https://img.shields.io/pypi/pyversions/django-boundary.svg)](https://pypi.org/project/django-boundary/)
 [![Django versions](https://img.shields.io/pypi/djversions/django-boundary.svg)](https://pypi.org/project/django-boundary/)
