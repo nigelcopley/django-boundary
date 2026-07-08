@@ -16,7 +16,7 @@ Practical guide for contributors.
 ## Local Development Setup
 
 ```bash
-git clone https://github.com/nigelcopley/django-boundary.git
+git clone https://github.com/icvoss/django-boundary.git
 cd django-boundary
 
 # Create a virtual environment

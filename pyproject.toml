@@ -39,11 +39,11 @@ dev = [
 ]
 
 [project.urls]
-"Homepage" = "https://github.com/nigelcopley/django-boundary"
-"Source Code" = "https://github.com/nigelcopley/django-boundary"
-"Changelog" = "https://github.com/nigelcopley/django-boundary/blob/main/CHANGELOG.md"
-"Issue Tracker" = "https://github.com/nigelcopley/django-boundary/issues"
-"Documentation" = "https://github.com/nigelcopley/django-boundary/tree/main/docs"
+"Homepage" = "https://github.com/icvoss/django-boundary"
+"Source Code" = "https://github.com/icvoss/django-boundary"
+"Changelog" = "https://github.com/icvoss/django-boundary/blob/main/CHANGELOG.md"
+"Issue Tracker" = "https://github.com/icvoss/django-boundary/issues"
+"Documentation" = "https://github.com/icvoss/django-boundary/tree/main/docs"
 
 [tool.setuptools.packages.find]
 where = ["src"]
