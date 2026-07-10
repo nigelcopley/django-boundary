@@ -70,7 +70,7 @@ BOUNDARY_STRICT_MODE = False
 If your domain calls the relationship something other than `tenant` (for example `merchant`), set it globally now so every later step uses that name:
 
 ```python
-# settings.py — optional, only if you want a non-"tenant" FK name
+# settings.py: optional, only if you want a non-"tenant" FK name
 BOUNDARY_TENANT_FK_FIELD = "merchant"
 ```
 

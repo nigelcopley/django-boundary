@@ -44,7 +44,7 @@ There is no separate "publish" step and no undo.**
 
 ## Tag format (strict)
 
-`v<semver>` — the letter `v` followed by the version number. The publish
+`v<semver>`: the letter `v` followed by the version number. The publish
 workflow matches `v*` and parses the version from after `v`.
 
 | Version | Tag example |

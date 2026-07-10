@@ -196,11 +196,11 @@ python manage.py check
 
 ## Related
 
-- [README: AbstractTenant](../../README.md#abstracttenant) — full field
+- [README: AbstractTenant](../../README.md#abstracttenant): full field
   reference.
-- [Settings reference](../reference/settings.md) — every `BOUNDARY_` option,
+- [Settings reference](../reference/settings.md): every `BOUNDARY_` option,
   including `BOUNDARY_SUBDOMAIN_FIELD` and `BOUNDARY_REGION_FIELD`, with
   defaults and trade-offs.
-- [Add boundary to an existing app](./add-boundary-to-an-existing-app.md) — once
+- [Add boundary to an existing app](./add-boundary-to-an-existing-app.md): once
   the tenant model exists, point scoped models at it with `TenantModel`,
   `TenantMixin`, or `make_tenant_mixin()`.

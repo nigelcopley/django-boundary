@@ -15,51 +15,51 @@ Scalable row-level multi-tenancy for Django with PostgreSQL Row Level Security.
 django-boundary is for Django projects that serve multiple tenants from a
 single database. If your users belong to organisations, workspaces, teams,
 schools, clinics, clubs, or any other entity that should only see its own
-data — boundary handles the isolation.
+data, boundary handles the isolation.
 
 ### Common use cases
 
-**SaaS platforms** — Each customer (organisation, workspace, account) is a
+**SaaS platforms**: Each customer (organisation, workspace, account) is a
 tenant. Their data is isolated at the ORM and database level. New tenants are
 provisioned via management command; no schema migrations required.
 
-**Marketplace platforms** — Sellers, venues, or merchants each have their own
+**Marketplace platforms**: Sellers, venues, or merchants each have their own
 tenant. Products, orders, and analytics are scoped per-tenant. Platform-wide
 reporting uses the `unscoped` manager.
 
-**Education / healthcare / government** — Schools, clinics, or departments are
+**Education / healthcare / government**: Schools, clinics, or departments are
 tenants. Data residency requirements are met via regional routing (e.g. UK data
 stays in UK database, EU data in EU database).
 
-**Agency or white-label products** — Each client gets their own tenant, resolved
+**Agency or white-label products**: Each client gets their own tenant, resolved
 by subdomain (`client-a.app.com`) or JWT claim from the auth provider.
 
-**Internal tools** — Departments or business units are tenants, resolved via
+**Internal tools**: Departments or business units are tenants, resolved via
 session or header. `STRICT_MODE` catches accidental cross-department data
 exposure during development.
 
 ### When NOT to use boundary
 
-- **Single-tenant apps** — no need for isolation machinery.
-- **Schema-per-tenant** — use [django-tenants](https://github.com/django-tenants/django-tenants) instead (different trade-offs at scale).
-- **Non-PostgreSQL databases** — the ORM layer works on any database, but RLS enforcement requires PostgreSQL 14+.
+- **Single-tenant apps**: no need for isolation machinery.
+- **Schema-per-tenant**: use [django-tenants](https://github.com/django-tenants/django-tenants) instead (different trade-offs at scale).
+- **Non-PostgreSQL databases**: the ORM layer works on any database, but RLS enforcement requires PostgreSQL 14+.
 
 ---
 
 ## Features
 
-- **Automatic ORM filtering** — queries are scoped to the active tenant by default
-- **PostgreSQL RLS** — database-level enforcement as a second layer of defence
-- **Async-native** — context propagation via `contextvars`, works with sync and async Django
-- **Pluggable resolvers** — subdomain, header, JWT claim, session, or custom
-- **Strict mode** — raises on unscoped queries (default: on), catches data leaks at development time
-- **Regional routing** — route queries to geographically distinct databases for data residency compliance
-- **Celery integration** — tenant context propagated via task headers, restored on workers
-- **Management commands** — provision, deprovision (with NDJSON export), scoped run, run-all with parallelism
-- **Test utilities** — `set_tenant()`, `TenantTestMixin`, `tenant_factory()`
-- **System checks** — validates configuration at startup
-- **LEAKPROOF RLS functions** — prevents query planner information leakage
-- **Zero assumptions** — no opinion on auth, URL structure, or domain model
+- **Automatic ORM filtering**: queries are scoped to the active tenant by default
+- **PostgreSQL RLS**: database-level enforcement as a second layer of defence
+- **Async-native**: context propagation via `contextvars`, works with sync and async Django
+- **Pluggable resolvers**: subdomain, header, JWT claim, session, or custom
+- **Strict mode**: raises on unscoped queries (default: on), catches data leaks at development time
+- **Regional routing**: route queries to geographically distinct databases for data residency compliance
+- **Celery integration**: tenant context propagated via task headers, restored on workers
+- **Management commands**: provision, deprovision (with NDJSON export), scoped run, run-all with parallelism
+- **Test utilities**: `set_tenant()`, `TenantTestMixin`, `tenant_factory()`
+- **System checks**: validates configuration at startup
+- **LEAKPROOF RLS functions**: prevents query planner information leakage
+- **Zero assumptions**: no opinion on auth, URL structure, or domain model
 
 ---
 
@@ -99,7 +99,7 @@ class Organisation(AbstractTenant):
 ```python
 # settings.py
 BOUNDARY_TENANT_MODEL = "tenants.Organisation"
-BOUNDARY_STRICT_MODE = True  # default — raises on unscoped queries
+BOUNDARY_STRICT_MODE = True  # default: raises on unscoped queries
 
 # Resolver chain: first match wins.
 # For public-facing apps, SubdomainResolver should be first.
@@ -161,7 +161,7 @@ BOUNDARY_RESOLVERS = ["boundary.resolvers.SubdomainResolver"]
 ```
 
 ```python
-# In a view — no tenant filtering needed, it's automatic
+# In a view: no tenant filtering needed, it's automatic
 def dashboard(request):
     projects = Project.objects.all()  # only this workspace's projects
     tasks = Task.objects.filter(completed=False)  # only this workspace's tasks
@@ -183,7 +183,7 @@ BOUNDARY_JWT_CLAIM = "org_id"  # custom claim name
 ```
 
 The JWT is validated by your auth middleware (DRF, django-allauth, etc.).
-Boundary only reads the claim — it never validates signatures.
+Boundary only reads the claim; it never validates signatures.
 
 ### Marketplace with seller isolation
 
@@ -211,11 +211,11 @@ BOUNDARY_RESOLVERS = [
 ```
 
 ```python
-# Seller's view — only sees their own products
+# Seller's view: only sees their own products
 def my_products(request):
     return Product.objects.all()
 
-# Admin analytics — sees all sellers
+# Admin analytics: sees all sellers
 def platform_revenue():
     return Order.unscoped.aggregate(total=Sum("product__price"))
 ```
@@ -236,7 +236,7 @@ DATABASE_ROUTERS = ["boundary.routing.RegionalRouter"]
 ```
 
 ```python
-# Tenant has region="uk" — all queries automatically hit the UK database
+# Tenant has region="uk": all queries automatically hit the UK database
 with TenantContext.using(uk_tenant):
     Patient.objects.create(name="Smith", nhs_number="123")  # stored in UK DB
 
@@ -280,28 +280,28 @@ def switch_department(request, dept_id):
   HTTP Request / Celery Task / Management Command
            |
            v
-  RESOLUTION LAYER — TenantMiddleware + pluggable Resolvers
+  RESOLUTION LAYER: TenantMiddleware + pluggable Resolvers
            |
            v
-  CONTEXT LAYER — TenantContext (ContextVar + DB session variable)
+  CONTEXT LAYER: TenantContext (ContextVar + DB session variable)
            |
            v
-  ORM LAYER — TenantManager auto-filters every queryset
+  ORM LAYER: TenantManager auto-filters every queryset
            |
            v
-  ROUTING LAYER (optional) — RegionalRouter per-tenant DB alias
+  ROUTING LAYER (optional): RegionalRouter per-tenant DB alias
            |
            v
-  DATABASE LAYER — PostgreSQL RLS policies (defence in depth)
+  DATABASE LAYER: PostgreSQL RLS policies (defence in depth)
 ```
 
 ### Defence in Depth
 
 Two independent layers enforce tenant isolation:
 
-1. **ORM layer** — `TenantManager` filters every queryset by the active tenant.
+1. **ORM layer**: `TenantManager` filters every queryset by the active tenant.
    This catches standard Django ORM usage.
-2. **PostgreSQL RLS** — Row Level Security policies enforce isolation at the
+2. **PostgreSQL RLS**: Row Level Security policies enforce isolation at the
    database level, catching raw SQL, third-party packages, and ORM bugs.
 
 A bug in one layer is caught by the other.
@@ -328,8 +328,8 @@ Convenience base for your tenant model. Provides common fields:
 Base class for tenant-scoped data models. Adds:
 
 - `tenant` ForeignKey to your tenant model (CASCADE, non-nullable)
-- `objects` — `TenantManager` that auto-filters by active tenant
-- `unscoped` — plain `Manager` for cross-tenant operations (admin, analytics)
+- `objects`: `TenantManager` that auto-filters by active tenant
+- `unscoped`: plain `Manager` for cross-tenant operations (admin, analytics)
 
 ```python
 class Booking(TenantModel):
@@ -340,10 +340,10 @@ class Booking(TenantModel):
 `TenantModel.save()` reads from `TenantContext` automatically.
 
 **Bulk operations:**
-- `bulk_create()` — auto-populates tenant on objects where `tenant_id` is None
-- `bulk_update()` — validates all objects belong to the active tenant
+- `bulk_create()`: auto-populates tenant on objects where `tenant_id` is None
+- `bulk_update()`: validates all objects belong to the active tenant
 
-### Custom FK Field Names — `make_tenant_mixin()`
+### Custom FK Field Names: `make_tenant_mixin()`
 
 If your domain uses a different name for the tenant relationship (e.g.
 `merchant`, `organisation`, `workspace`), use the factory instead of
@@ -357,9 +357,9 @@ MerchantMixin = make_tenant_mixin("merchant")
 class Product(MerchantMixin):
     sku = models.CharField(max_length=50)
 
-# Product.merchant is the FK — auto-filtering, auto-populate, bulk ops all work
-# Product.objects.all()  — filters by active tenant via the "merchant" field
-# product.merchant       — returns the tenant instance
+# Product.merchant is the FK: auto-filtering, auto-populate, bulk ops all work
+# Product.objects.all() : filters by active tenant via the "merchant" field
+# product.merchant      : returns the tenant instance
 ```
 
 The factory accepts the same FK options as Django's `ForeignKey`:
@@ -452,7 +452,7 @@ variable on exit rather than relying on PostgreSQL savepoint rollback.
 ## Resolvers
 
 Resolvers determine which tenant applies to an incoming request. Configure
-via `BOUNDARY_RESOLVERS` — first match wins.
+via `BOUNDARY_RESOLVERS`; first match wins.
 
 | Resolver | Source | Setting |
 |----------|--------|---------|
@@ -653,7 +653,7 @@ python manage.py boundary_run_all send_reminders --parallel 4 --region eu-west -
 | `boundary.E003` | Error | Resolver class cannot be imported |
 | `boundary.E004` | Error | TenantMiddleware not in MIDDLEWARE |
 | `boundary.E005` | Error | BOUNDARY_REGIONS set but RegionalRouter not in DATABASE_ROUTERS |
-| `boundary.E006` | Error | Tenant-scoped table missing RLS — recognises TenantMixin and make_tenant_mixin models |
+| `boundary.E006` | Error | Tenant-scoped table missing RLS; recognises TenantMixin and make_tenant_mixin models |
 | `boundary.W001` | Warning | STRICT_MODE is False |
 
 ---

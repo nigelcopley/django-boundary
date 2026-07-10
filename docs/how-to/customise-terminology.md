@@ -10,12 +10,12 @@ messages that say "No merchant is active", and a 404 body that reads
 
 Boundary exposes three settings and one factory for this:
 
-- `BOUNDARY_TENANT_FK_FIELD` — the foreign key field name on scoped models. This
+- `BOUNDARY_TENANT_FK_FIELD`: the foreign key field name on scoped models. This
   is the master switch: the other two default to it.
-- `BOUNDARY_TENANT_LABEL` — the human-readable word in error messages, the FK's
+- `BOUNDARY_TENANT_LABEL`: the human-readable word in error messages, the FK's
   `verbose_name`, and middleware HTTP response bodies.
-- `BOUNDARY_REQUEST_ATTR` — the attribute name aliased onto the request object.
-- `make_tenant_mixin(fk_field)` — a factory that builds an abstract mixin whose
+- `BOUNDARY_REQUEST_ATTR`: the attribute name aliased onto the request object.
+- `make_tenant_mixin(fk_field)`: a factory that builds an abstract mixin whose
   FK uses the name you pass, when you want a per-model name rather than a global
   one.
 
@@ -227,11 +227,11 @@ True
 
 ## Related
 
-- [Set up a tenant model](set-up-a-tenant-model.md) — define the model that
+- [Set up a tenant model](set-up-a-tenant-model.md): define the model that
   `BOUNDARY_TENANT_MODEL` points at.
-- [Write tenant-safe tests](write-tenant-safe-tests.md) — `set_tenant` and the
+- [Write tenant-safe tests](write-tenant-safe-tests.md): `set_tenant` and the
   test helpers used in the verification snippets above.
-- [Choose and order resolvers](choose-and-order-resolvers.md) — how the
+- [Choose and order resolvers](choose-and-order-resolvers.md): how the
   middleware finds the tenant it sets on the request.
-- [README](../../README.md) — full settings reference and the
+- [README](../../README.md): full settings reference and the
   `make_tenant_mixin()` signature.

@@ -28,11 +28,11 @@ All built-ins live in `boundary.resolvers` and subclass `BaseResolver`. Each `re
 
 When to use each:
 
-- **SubdomainResolver** — public-facing multi-tenant apps where each tenant has its own subdomain. Requires a host with at least three labels (`slug.domain.tld`); a bare `example.com` returns `None`. This is the default when `BOUNDARY_RESOLVERS` is unset.
-- **HeaderResolver** — internal or service-to-service APIs where a trusted client names the tenant. It tries the header value as a UUID pk, then as a raw pk, then as a slug (`SUBDOMAIN_FIELD`), so both `X-Tenant-ID: <uuid>` and `X-Tenant-ID: club-a` work. Treat the header as a trust boundary: anyone who can set it picks the tenant.
-- **JWTClaimResolver** — APIs that already authenticate with a bearer token carrying the tenant in a claim. It base64-decodes the JWT payload and reads the claim, but does NOT verify the signature, so put real token verification (for example DRF auth or an upstream gateway) in front of it. The claim value must be the tenant pk.
-- **SessionResolver** — server-rendered apps where the user selects or is assigned a tenant and you store its pk in `request.session[BOUNDARY_SESSION_KEY]`.
-- **ExplicitResolver** — when other code (a different middleware, a test, a management command path) has already set `request.boundary_tenant`. It is a pure attribute read with no DB lookup, useful as a first-priority override or in test setups.
+- **SubdomainResolver**: public-facing multi-tenant apps where each tenant has its own subdomain. Requires a host with at least three labels (`slug.domain.tld`); a bare `example.com` returns `None`. This is the default when `BOUNDARY_RESOLVERS` is unset.
+- **HeaderResolver**: internal or service-to-service APIs where a trusted client names the tenant. It tries the header value as a UUID pk, then as a raw pk, then as a slug (`SUBDOMAIN_FIELD`), so both `X-Tenant-ID: <uuid>` and `X-Tenant-ID: club-a` work. Treat the header as a trust boundary: anyone who can set it picks the tenant.
+- **JWTClaimResolver**: APIs that already authenticate with a bearer token carrying the tenant in a claim. It base64-decodes the JWT payload and reads the claim, but does NOT verify the signature, so put real token verification (for example DRF auth or an upstream gateway) in front of it. The claim value must be the tenant pk.
+- **SessionResolver**: server-rendered apps where the user selects or is assigned a tenant and you store its pk in `request.session[BOUNDARY_SESSION_KEY]`.
+- **ExplicitResolver**: when other code (a different middleware, a test, a management command path) has already set `request.boundary_tenant`. It is a pure attribute read with no DB lookup, useful as a first-priority override or in test setups.
 
 ### 2. Configure the order
 
@@ -137,6 +137,6 @@ To confirm ordering end to end, send a real request through the middleware and r
 
 ## Related
 
-- [README: Resolvers](../../README.md#resolvers) — full resolver table and resolver-cache behaviour.
-- [Settings reference](../reference/settings.md) — all `BOUNDARY_` settings and defaults.
-- [README: Signals](../../README.md#signals) — `tenant_resolved` and `tenant_resolution_failed`.
+- [README: Resolvers](../../README.md#resolvers): full resolver table and resolver-cache behaviour.
+- [Settings reference](../reference/settings.md): all `BOUNDARY_` settings and defaults.
+- [README: Signals](../../README.md#signals): `tenant_resolved` and `tenant_resolution_failed`.

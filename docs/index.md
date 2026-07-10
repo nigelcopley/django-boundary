@@ -32,15 +32,15 @@ the [settings reference](reference/settings.md).
 
 The documentation follows the [Diátaxis](https://diataxis.fr/) model:
 
-- **[Tutorial](tutorial/first-multi-tenant-app.md)** — a single, opinionated path
+- **[Tutorial](tutorial/first-multi-tenant-app.md)**: a single, opinionated path
   from nothing to a working multi-tenant app. Start here if you are new.
-- **How-to guides** — recipes for specific tasks. Each one states a goal,
+- **How-to guides**: recipes for specific tasks. Each one states a goal,
   lists prerequisites, gives runnable steps, and shows how to verify the result.
-- **Explanation** — the "why": the threat model, the two isolation layers, and
+- **Explanation**: the "why": the threat model, the two isolation layers, and
   the request-to-tenant lifecycle. Read these to build a mental model.
 - **[Settings reference](reference/settings.md)** and the
-  [README](../README.md) — the exhaustive lookup tables.
-- **[Troubleshooting](troubleshooting.md)** — symptom, cause, fix.
+  [README](../README.md): the exhaustive lookup tables.
+- **[Troubleshooting](troubleshooting.md)**: symptom, cause, fix.
 
 ## New to django-boundary?
 

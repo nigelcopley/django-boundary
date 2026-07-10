@@ -262,13 +262,13 @@ python manage.py shell -c "from boundary.conf import get_tenant_model; print(get
 
 ## Related
 
-- [README: Management Commands](../../README.md#management-commands) — quick
+- [README: Management Commands](../../README.md#management-commands): quick
   reference for all four commands, including `boundary_run` and
   `boundary_run_all`.
-- [README: Settings Reference](../../README.md#settings-reference) — full table
+- [README: Settings Reference](../../README.md#settings-reference): full table
   including `BOUNDARY_POST_PROVISION_HOOK` and `BOUNDARY_PRE_DEPROVISION_HOOK`.
-- [Set up a tenant model](./set-up-a-tenant-model.md) — define and register the
+- [Set up a tenant model](./set-up-a-tenant-model.md): define and register the
   model these commands operate on.
-- [Run Celery tasks with tenant context](./run-celery-tasks-with-tenant-context.md)
-  — for activating tenant context inside provisioning hooks that write scoped
+- [Run Celery tasks with tenant context](./run-celery-tasks-with-tenant-context.md):
+  for activating tenant context inside provisioning hooks that write scoped
   rows.

@@ -101,7 +101,7 @@ In a request, `TenantMiddleware` builds a `TenantInactiveError` and hands it to 
 
 Boundary registers Django system checks that run at startup and during test collection. Resolve errors (`E0xx`) before deploying; warnings (`W0xx`) are advisory.
 
-### `boundary.E001` — tenant model missing or invalid
+### `boundary.E001`: tenant model missing or invalid
 
 **Triggers when:** `BOUNDARY_TENANT_MODEL` is unset, or its value does not refer to an installed model.
 
@@ -114,13 +114,13 @@ BOUNDARY_TENANT_MODEL = "accounts.Tenant"  # app_label.ModelName
 
 Confirm the app is in `INSTALLED_APPS` and the `app_label.ModelName` format is exact.
 
-### `boundary.E003` — resolver cannot be imported
+### `boundary.E003`: resolver cannot be imported
 
 **Triggers when:** a dotted path in `BOUNDARY_RESOLVERS` raises `ImportError` when imported.
 
 **Fix:** correct the path. The default is `["boundary.resolvers.SubdomainResolver"]`. Each entry must be an importable resolver class.
 
-### `boundary.E004` — middleware missing
+### `boundary.E004`: middleware missing
 
 **Triggers when:** `boundary.middleware.TenantMiddleware` is not in `MIDDLEWARE`.
 
@@ -134,13 +134,13 @@ MIDDLEWARE = [
 ]
 ```
 
-### `boundary.E006` — Row Level Security not enabled
+### `boundary.E006`: Row Level Security not enabled
 
 **Triggers when:** running on PostgreSQL, a tenant-scoped table does not have RLS both *enabled* and *forced* (`relrowsecurity` and `relforcerowsecurity` in `pg_class`). The check recognises models using `TenantMixin`, `make_tenant_mixin()`, or any model exposing a `_boundary_fk_field` attribute. Tables that do not exist yet (pre-migration) are skipped, and the check is a no-op on non-PostgreSQL backends.
 
 **Fix:** add the `EnableRLS` migration operation for the affected model so the database enforces isolation even for raw SQL and superuser-less connections. RLS is the defence-in-depth layer beneath ORM filtering; do not rely on the ORM alone.
 
-### `boundary.W001` — strict mode off
+### `boundary.W001`: strict mode off
 
 **Triggers when:** `BOUNDARY_STRICT_MODE` is `False`.
 
@@ -232,5 +232,5 @@ threading.Thread(target=worker, args=(tenant,)).start()
 
 ## Related
 
-- [README](../README.md) — full settings reference and system check table.
+- [README](../README.md): full settings reference and system check table.
 - Configuration keys referenced here: `BOUNDARY_TENANT_MODEL`, `BOUNDARY_STRICT_MODE`, `BOUNDARY_REQUIRED`, `BOUNDARY_RESOLVERS`, `BOUNDARY_REGIONS`, `BOUNDARY_REGION_FIELD`, `BOUNDARY_TENANT_FK_FIELD`, `BOUNDARY_TENANT_LABEL`, `BOUNDARY_REQUEST_ATTR`.

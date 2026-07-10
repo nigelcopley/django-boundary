@@ -58,7 +58,7 @@ that is exactly the case this replaces.
        ExportLog.objects.create(destination=dest)   # no tenant kwarg needed
    ```
 
-   The mixin adds **no foreign key** — the model already has the relation the
+   The mixin adds **no foreign key**: the model already has the relation the
    path traverses. There is no `tenant`/`merchant` column on the table, and
    nothing to populate on save.
 
@@ -103,9 +103,9 @@ from boundary.models import (
 )
 
 is_tenant_model(ExportLog)      # True
-has_tenant_column(ExportLog)    # False — no local column
+has_tenant_column(ExportLog)    # False: no local column
 get_tenant_lookup(ExportLog)    # "destination__merchant"
-get_tenant_fk_field(ExportLog)  # None — there is no column
+get_tenant_fk_field(ExportLog)  # None: there is no column
 ```
 
 ## Related

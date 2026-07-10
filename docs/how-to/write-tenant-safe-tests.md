@@ -274,7 +274,7 @@ raises `TenantNotSetError` when no tenant is active.
 - **Forgetting `db` access.** Mark pytest tests with `@pytest.mark.django_db` (or
   request the `db`/`tenant_factory` fixtures), otherwise tenant creation fails.
 - **Mocking a manager method.** boundary has no `for_tenant`/`for_merchant`
-  method to mock — filtering lives entirely in the default manager's
+  method to mock; filtering lives entirely in the default manager's
   `get_queryset`. Do not patch a manager method with a `side_effect`; assert on
   the querysets the real (auto-filtered) manager returns, or use `set_tenant` /
   `call_view` to establish context. A mock pinned to a method that does not
